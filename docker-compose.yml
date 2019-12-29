@@ -1,0 +1,77 @@
+version: "3.7"
+
+services:
+
+   nginx:
+      image: wang-jing/nginx:latest
+      build:
+         context: nginx
+      shm_size: '2gb'
+      ports:
+         - "80:80"
+         - "443:443"
+      networks:
+         - wang-jing-net
+      volumes:
+         - ${www_dir:-/var/www}:/var/www
+
+   php:
+      image: wang-jing/php:latest
+      build:
+         context: php
+      shm_size: '2gb'
+      ports:
+         - "9000:9000"
+      networks:
+         - wang-jing-net
+      volumes:
+          - ${www_dir:-/var/www}:/var/www
+
+   mysql:
+      image: wang-jing/mysql:latest
+      build:
+         context: mysql
+      ports:
+         - "3306:3306"
+      networks:
+         - wang-jing-net
+      volumes:
+         - ${mysql_data_dir:-/var/lib/mysql}:/var/lib/mysql
+         - ${mysql_initdb_dir:-/docker-entrypoint-initdb.d}:/docker-entrypoint-initdb.d
+
+   phpmyadmin:
+       image: wang-jing/phpmyadmin:latest
+       build:
+           context: phpmyadmin
+       environment:
+           - PMA_ARBITRARY=1
+       ports:
+           - "8080:80"
+       volumes:
+           - ${phpmyadmin_sessions_dir:-/sessions}:/sessions
+       networks:
+           - wang-jing-net
+
+   redis:
+      image: wang-jing/redis:latest
+      command: ["redis-server", "--appendonly", "yes"]
+      build:
+         context: redis
+      ports:
+         - "6379:6379"
+      networks:
+         - wang-jing-net
+      volumes:
+         - ${redis_data_dir:-/data}:/data
+
+   memcached:
+      image: wang-jing/memcached:latest
+      build:
+         context: memcached
+      ports:
+         - "11211:11211"
+      networks:
+         - wang-jing-net
+
+networks:
+   wang-jing-net:
