@@ -9,16 +9,15 @@ RUN curl -o /tmp/composer-setup.php https://getcomposer.org/installer && curl -o
 RUN docker-php-ext-install pdo_mysql mysqli
 
 #php-gd
-RUN apt-get install -y libfreetype6-dev libmcrypt-dev libjpeg-dev libpng-dev
-RUN docker-php-ext-configure gd \
-        --with-freetype-dir=/usr/include/freetype2 \
-        --with-png-dir=/usr/include \
-        --with-jpeg-dir=/usr/include \
-    && docker-php-ext-install gd
+RUN apt-get install -y \
+		libfreetype6-dev \
+		libjpeg62-turbo-dev \
+		libpng-dev \
+	&& docker-php-ext-configure gd --with-freetype --with-jpeg \
+	&& docker-php-ext-install -j$(nproc) gd
 
 #php-zip
 RUN apt-get install -y libzip-dev  zip \
-  && docker-php-ext-configure zip --with-libzip \
   && docker-php-ext-install zip
 
 #php-imagick
